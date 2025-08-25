@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donation Alert</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="alertBox" class="alert"></div>
+
+  <audio id="alertSound" preload="auto">
+    <source src="https://www.myinstants.com/media/sounds/tindeck_1.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get("name");
+    const amount = params.get("amount");
+    const alertBox = document.getElementById("alertBox");
+    const sound = document.getElementById("alertSound");
+
+    if (name && amount) {
+      showDonation(name, amount);
+    }
+
+    function showDonation(name, amount) {
+      alertBox.textContent = `🎉 ${name} donated $${amount}! 🎉`;
+      alertBox.classList.add("show");
+
+      sound.currentTime = 0;
+      sound.play();
+
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.style.left = Math.random() * window.innerWidth + "px";
+        confetti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        confetti.style.animationDuration = (2 + Math.random() * 2) + "s";
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 3000);
+      }
+
+      setTimeout(() => {
+        alertBox.classList.remove("show");
+        alertBox.style.opacity = 0;
+      }, 6000);
+    }
+  </script>
+</body>
+</html>

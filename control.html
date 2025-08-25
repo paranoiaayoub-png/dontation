@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="form">
+    <input id="nameInput" type="text" placeholder="Donor Name">
+    <input id="amountInput" type="number" placeholder="Amount">
+    <button onclick="sendDonation()">Send</button>
+  </div>
+
+  <script>
+    function sendDonation() {
+      const name = document.getElementById("nameInput").value || "Anonymous";
+      const amount = document.getElementById("amountInput").value || "0";
+      const url = `index.html?name=${encodeURIComponent(name)}&amount=${encodeURIComponent(amount)}`;
+      window.open(url, "_blank");
+    }
+  </script>
+</body>
+</html>
