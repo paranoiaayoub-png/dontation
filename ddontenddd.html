@@ -1,151 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Donation Alert</title>
-  <style>
-    body {
-      margin: 0;
-      background: #111; /* use 'transparent' for OBS overlay */
-      font-family: "Poppins", sans-serif;
-      color: white;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    /* Input form at top */
-    .form {
-      margin: 20px;
-      display: flex;
-      gap: 10px;
-      z-index: 10;
-    }
-
-    .form input, .form button {
-      padding: 10px 15px;
-      border-radius: 8px;
-      border: none;
-      font-size: 1rem;
-    }
-
-    .form input {
-      flex: 1;
-    }
-
-    .form button {
-      background: #46c2ff;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .form button:hover {
-      background: #349bd1;
-    }
-
-    /* Alert box in the middle */
-    .alert {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.5);
-      background: linear-gradient(135deg, #6d5dfc, #46c2ff);
-      color: white;
-      padding: 20px 40px;
-      border-radius: 20px;
-      text-align: center;
-      font-size: 1.8rem;
-      font-weight: bold;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .show {
-      animation: popIn 0.6s ease forwards, float 2s ease-in-out infinite alternate;
-    }
-
-    @keyframes popIn {
-      0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
-      60% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    }
-
-    @keyframes float {
-      from { transform: translate(-50%, -52%) scale(1); }
-      to { transform: translate(-50%, -48%) scale(1); }
-    }
-
-    /* Confetti */
-    .confetti {
-      position: absolute;
-      width: 8px;
-      height: 14px;
-      opacity: 0.7;
-      animation: fall 3s linear forwards;
-    }
-
-    @keyframes fall {
-      from { transform: translateY(-100px) rotate(0deg); opacity: 1; }
-      to { transform: translateY(800px) rotate(360deg); opacity: 0; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donation Overlay</title>
+<style>
+  body { margin:0; background:transparent; overflow:hidden; }
+  .alert {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%) scale(0.5);
+    background:linear-gradient(135deg,#6d5dfc,#46c2ff);
+    color:#fff; padding:20px 40px; border-radius:20px;
+    font-size:1.8rem; font-weight:bold;
+    opacity:0; pointer-events:none;
+  }
+  .show { animation:popIn 0.6s ease forwards; }
+  @keyframes popIn {
+    0%{transform:translate(-50%,-50%) scale(0.2);opacity:0;}
+    60%{transform:translate(-50%,-50%) scale(1.2);opacity:1;}
+    100%{transform:translate(-50%,-50%) scale(1);opacity:1;}
+  }
+</style>
 </head>
 <body>
-  <!-- Input form at top -->
-  <div class="form">
-    <input id="nameInput" type="text" placeholder="Donor Name">
-    <input id="amountInput" type="number" placeholder="Amount">
-    <button onclick="triggerDonation()">Show Alert</button>
-  </div>
 
-  <!-- Alert Box (center screen) -->
-  <div id="alertBox" class="alert"></div>
+<div id="alertBox" class="alert"></div>
+<audio id="alertSound" preload="auto">
+  <source src="alert.mp3" type="audio/mpeg">
+</audio>
 
-  <!-- Sound Effect -->
-  <audio id="alertSound" preload="auto">
-    <source src="https://www.myinstants.com/media/sounds/tindeck_1.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
+<script>
+  const alertBox = document.getElementById("alertBox");
+  const sound = document.getElementById("alertSound");
+  let lastDonation = "";
 
-  <script>
-    function showDonation(name, amount) {
-      const alertBox = document.getElementById("alertBox");
-      const sound = document.getElementById("alertSound");
+  function showDonation(name, amount) {
+    alertBox.textContent = `🎉 ${name} donated $${amount}! 🎉`;
+    alertBox.classList.add("show");
+    sound.currentTime = 0; sound.play();
+    setTimeout(() => alertBox.classList.remove("show"), 6000);
+  }
 
-      alertBox.textContent = `🎉 ${name} donated $${amount}! 🎉`;
-      alertBox.classList.add("show");
+  function checkDonation() {
+    fetch("donation.json?cache=" + Date.now())
+      .then(res => res.json())
+      .then(data => {
+        const key = data.name + data.amount;
+        if (key !== lastDonation && data.amount) {
+          lastDonation = key;
+          showDonation(data.name, data.amount);
+        }
+      })
+      .catch(err => console.log("waiting for donation.json..."));
+  }
 
-      // Play sound
-      sound.currentTime = 0; 
-      sound.play();
+  setInterval(checkDonation, 2000);
+</script>
 
-      // Confetti burst
-      for (let i = 0; i < 50; i++) {
-        const confetti = document.createElement("div");
-        confetti.className = "confetti";
-        confetti.style.left = Math.random() * window.innerWidth + "px";
-        confetti.style.background = `hsl(${Math.random()*360}, 100%, 50%)`;
-        confetti.style.animationDuration = (2 + Math.random()*2) + "s";
-        document.body.appendChild(confetti);
-        setTimeout(() => confetti.remove(), 3000);
-      }
-
-      // Hide after 6s
-      setTimeout(() => {
-        alertBox.classList.remove("show");
-        alertBox.style.opacity = 0;
-      }, 6000);
-    }
-
-    function triggerDonation() {
-      const name = document.getElementById("nameInput").value || "Anonymous";
-      const amount = document.getElementById("amountInput").value || "0";
-      showDonation(name, amount);
-    }
-  </script>
 </body>
 </html>
