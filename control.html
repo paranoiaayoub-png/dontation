@@ -18,10 +18,13 @@
       const name = document.getElementById("nameInput").value || "Anonymous";
       const amount = document.getElementById("amountInput").value || "0";
 
-      // Send a message to the overlay window in OBS
-      // 🔴 Replace the URL with your OBS overlay page URL
-      const overlay = window.open("https://paranoiaayoub-png.github.io/dontation/index.html", "overlay");
-      overlay.postMessage({ type: "donation", name, amount }, "*");
+      // Save donation in localStorage with unique id
+      const donation = {
+        id: Date.now(),
+        name,
+        amount
+      };
+      localStorage.setItem("donation", JSON.stringify(donation));
     }
   </script>
 </body>
