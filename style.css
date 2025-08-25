@@ -1,49 +1,27 @@
 body {
-  margin: 0;
-  background: transparent;
   font-family: Arial, sans-serif;
-  color: white;
-  text-align: center;
+  background: transparent;
+  margin: 0;
+  padding: 0;
 }
 
-.alert {
-  position: fixed;
-  top: 40%;
+#alertBox {
+  position: absolute;
+  top: 20px;
   left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2em;
-  padding: 20px 40px;
-  background: rgba(0, 0, 0, 0.7);
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
   border-radius: 12px;
-  opacity: 0;
-  transition: opacity 0.5s;
+  font-size: 24px;
+  display: none;
 }
 
-.alert.show {
-  opacity: 1;
+#alertBox:not(.hidden) {
+  display: block;
 }
 
-.form {
-  margin: 50px auto;
-  text-align: center;
-}
-
-input, button {
-  padding: 10px;
-  margin: 10px;
-  font-size: 1em;
-}
-
-.confetti {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  top: -10px;
-  animation: fall linear forwards;
-}
-
-@keyframes fall {
-  to {
-    transform: translateY(100vh) rotate(360deg);
-  }
+.hidden {
+  display: none;
 }
