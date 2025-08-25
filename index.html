@@ -17,13 +17,6 @@
     const alertBox = document.getElementById("alertBox");
     const sound = document.getElementById("alertSound");
 
-    // Listen for donation messages
-    window.addEventListener("message", (event) => {
-      if (event.data.type === "donation") {
-        showDonation(event.data.name, event.data.amount);
-      }
-    });
-
     function showDonation(name, amount) {
       alertBox.textContent = `🎉 ${name} donated $${amount}! 🎉`;
       alertBox.classList.add("show");
@@ -31,7 +24,6 @@
       sound.currentTime = 0;
       sound.play();
 
-      // Confetti
       for (let i = 0; i < 50; i++) {
         const confetti = document.createElement("div");
         confetti.className = "confetti";
@@ -47,6 +39,19 @@
         alertBox.style.opacity = 0;
       }, 6000);
     }
+
+    // Poll localStorage for new donations
+    let lastId = null;
+    setInterval(() => {
+      const data = localStorage.getItem("donation");
+      if (data) {
+        const donation = JSON.parse(data);
+        if (donation.id !== lastId) {
+          lastId = donation.id;
+          showDonation(donation.name, donation.amount);
+        }
+      }
+    }, 1000);
   </script>
 </body>
 </html>
